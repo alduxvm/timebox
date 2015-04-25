@@ -10,92 +10,75 @@ __version__ = "1"
 __maintainer__ = "Aldo Vargas"
 __email__ = "alduxvm@gmail.com"
 __status__ = "Development"
- 
+
+
 from Tkinter import *
-from modules.pyMultiwii import MultiWii	
-import modules.utils as utils
+import time
 
-# MultiWii Initialization
-#board = MultiWii("/dev/ttyUSB0")
-board = MultiWii("/dev/tty.usbserial-A801WZA1")
+class StopWatch(Frame):  
+    """ Implements a stop watch frame widget. """                                                                
+    def __init__(self, parent=None, **kw):        
+        Frame.__init__(self, parent, kw)
+        self._start = 0.0        
+        self._elapsedtime = 0.0
+        self._running = 0
+        self.timestr = StringVar()               
+        self.makeWidgets()      
 
-sizeX = 320
-sizeY = 240
-circleradius = 100
-arcradius = 85
+    def makeWidgets(self):                         
+        """ Make the time label. """
+        l = Label(self, textvariable=self.timestr)
+        self._setTime(self._elapsedtime)
+        l.pack(fill=X, expand=NO, pady=2, padx=2)                      
+    
+    def _update(self): 
+        """ Update the label with elapsed time. """
+        self._elapsedtime = time.time() - self._start
+        self._setTime(self._elapsedtime)
+        self._timer = self.after(50, self._update)
+    
+    def _setTime(self, elap):
+        """ Set the time string to Minutes:Seconds:Hundreths """
+        minutes = int(elap/60)
+        seconds = int(elap - minutes*60.0)
+        hseconds = int((elap - minutes*60.0 - seconds)*100)                
+        self.timestr.set('%02d:%02d:%02d' % (minutes, seconds, hseconds))
+        
+    def Start(self):                                                     
+        """ Start the stopwatch, ignore if running. """
+        if not self._running:            
+            self._start = time.time() - self._elapsedtime
+            self._update()
+            self._running = 1        
+    
+    def Stop(self):                                    
+        """ Stop the stopwatch, ignore if stopped. """
+        if self._running:
+            self.after_cancel(self._timer)            
+            self._elapsedtime = time.time() - self._start    
+            self._setTime(self._elapsedtime)
+            self._running = 0
+    
+    def Reset(self):                                  
+        """ Reset the stopwatch. """
+        self._start = time.time()         
+        self._elapsedtime = 0.0    
+        self._setTime(self._elapsedtime)
+        
+        
+def main():
+    root = Tk()
+    sw = StopWatch(root)
+    sw.pack(side=TOP)
+    
+    Button(root, text='Start', command=sw.Start).pack(side=LEFT)
+    Button(root, text='Stop', command=sw.Stop).pack(side=LEFT)
+    Button(root, text='Reset', command=sw.Reset).pack(side=LEFT)
+    Button(root, text='Quit', command=root.quit).pack(side=LEFT)
+    
+    root.mainloop()
 
-tk = Tk()
-tk.title("Timebox")
-tk.geometry("320x240+0+0")
-tk.configure(background='black')
-#tk.attributes("-fullscreen", True)
-canvas = Canvas(tk, width=sizeX, height=sizeY, borderwidth=0, highlightthickness=0, bg="black")
-canvas.grid()
- 
-def boxAngle():
-	global board, canvas, a, c#, text
-	canvas.delete(a)
-	canvas.delete(c)
-	board.getData(MultiWii.ATTITUDE)
-	#attitude = "Attitude = %0.1f | %0.1f | %0.1f" % (board.attitude['angx'],board.attitude['angy'],board.attitude['heading']) 
-	#text.set(attitude)
-	#angx.set(board.attitude['angx'])
-	#angy.set(board.attitude['angy'])
-	#head.set(board.attitude['heading'])
-	arcStart = board.attitude['angx']+15+90
-	arcEnd = board.attitude['angx']-15+90
-	r = int(utils.limit(utils.mapping(board.attitude['angx'], -90, 10, 255, 0),0,255))
-	g = int(utils.limit(utils.mapping(board.attitude['angx'], -20, 20,  200, 255),0,255))
-	b = int(utils.limit(utils.mapping(board.attitude['angx'], -10, 90, 0, 255),0,255)) 
-	#print "angle= %0.2f r= %d g= %d b= %d" % (board.attitude['angx'],r,g,b)
-	#canvas.create_circle_arc(100, 120, 50, fill="black", style="arc", outline=utils.rgb_to_hex((r, g, b)), width=10, start=0, end=180)
-	c = canvas.create_circle(sizeX/2, sizeY/2, circleradius, fill="black", outline=utils.rgb_to_hex((r, g, b)), width=10)
-	a = canvas.create_circle_arc(sizeX/2, sizeY/2, arcradius, style="arc", outline="white", width=3, start=arcStart, end=arcEnd)
-	#b = canvas.create_circle_arc(100, 120, 43, style="arc", outline="white", width=3, start=board.attitude['angy']+15+270, end=board.attitude['angy']-15+270)
-	tk.after(100, boxAngle)
+if __name__ == '__main__':
+    main()
 
-def _create_circle(self, x, y, r, **kwargs):
-    return self.create_oval(x-r, y-r, x+r, y+r, **kwargs)
-Canvas.create_circle = _create_circle
-
-def _create_circle_arc(self, x, y, r, **kwargs):
-    if "start" in kwargs and "end" in kwargs:
-        kwargs["extent"] = kwargs["end"] - kwargs["start"]
-        del kwargs["end"]
-    return self.create_arc(x-r, y-r, x+r, y+r, **kwargs)
-Canvas.create_circle_arc = _create_circle_arc
-
-#angx = DoubleVar()
-#scale1 = Scale( root, variable = angx, state=DISABLED, background='black', width=5, from_=-90, to=90)
-#scale1.pack(side=LEFT)
-#angy = DoubleVar()
-#scale2 = Scale( root, variable = angy, state=DISABLED, background='black', width=5, from_=-90, to=90, orient=HORIZONTAL)
-#scale2.pack(side=LEFT)
-#head = DoubleVar()
-#scale3 = Scale( root, variable = head, state=DISABLED, from_=-180, to=180)
-#scale3.pack(side=LEFT)
-
-# Un texto
-#text = StringVar()
-#label = Label( root, textvariable=text, relief=RAISED )
-#text.set("Attitude = 0.0 | 0.0 | 0.0")
-#label.pack(anchor=CENTER)
-
-#toggleButton = Button(root, text="Ask box position", command=boxAngle)
-#toggleButton.pack(side=LEFT)
-
-#quitButton = Button(root, text="Quit", command=exit)
-#quitButton.pack(side=LEFT)
-
-#button1 = Button(tk, text = "Quit", command = exit, anchor = W)
-#button1.configure(width = 10, activebackground = "#33B5E5", relief = FLAT)
-#button1_window = canvas.create_window(10, 10, anchor=NW, window=button1)
-
-c = canvas.create_circle(sizeX/2, sizeY/2, circleradius, fill="black", outline="#DDD", width=10)
-#canvas.create_circle_arc(100, 120, 50, fill="black", style="arc", outline="#DDD", width=10, start=0, end=180)
-a = canvas.create_circle_arc(sizeX/2, sizeY/2, arcradius, style="arc", outline="white", width=5, start=0+15, end=0-15)
-#b = canvas.create_circle_arc(100, 120, 43, style="arc", outline="white", width=3, start=270+15, end=270-15)
-
-boxAngle()
-tk.mainloop()  
 
