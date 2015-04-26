@@ -139,7 +139,7 @@ def click(event):
 		printer.print_text(events[valor][2])
 		printer.print_text("\n\nMore info:\n")
 		printer.print_text(events[valor][3])
-		printer.print_text("\n\n:)\n____________________________\n\n\n\n")
+		printer.print_text("\n\n:)\n____________________________\n\n\n\n\n\n")
 	except:
 		print "Error while printing, perhaps no printer attached."
 
