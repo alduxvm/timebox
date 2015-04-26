@@ -19,8 +19,8 @@ import time, csv, datetime, random
 
 
 # MultiWii Initialization
-#board = MultiWii("/dev/ttyUSB0")
-board = MultiWii("/dev/tty.usbserial-A801WYAE")	
+board = MultiWii("/dev/ttyUSB0")
+#board = MultiWii("/dev/tty.usbserial-A801WYAE")	
 
 # Events data Initialization
 reader = reader = csv.reader(open('data.csv', 'rU'), delimiter=';')
@@ -58,7 +58,7 @@ canvas = Canvas(tk, width=sizeX, height=sizeY, borderwidth=0, highlightthickness
 canvas.grid()
 
 
-""" Main GUI update function, called each 100 miliseconds """
+""" Main GUI update function, called each 150 miliseconds """
 def boxAngle():
 	global board, canvas, a, c, b, running
 
