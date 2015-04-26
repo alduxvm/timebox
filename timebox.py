@@ -15,16 +15,34 @@ from Tkinter import *
 from modules.pyMultiwii import MultiWii	
 import modules.utils as utils
 import modules.printer
-import time
+import time, csv, datetime, random
+
+debug = True
 
 # MultiWii Initialization
 #board = MultiWii("/dev/ttyUSB0")
 #board = MultiWii("/dev/tty.usbserial-A801WZA1")
 
-# Printer 
-#printer = ThermalPrinter(serialport='/dev/ttyAMA0')
+# CSV data Initialization
+# Read CSV file
+reader = reader = csv.reader(open('data.csv', 'rU'), delimiter=';')
+# Put the CSV info into a list
+events = list(reader)
+# Sort the list by date (sort of...)
+events.sort()
+# Delete the first error element of the list which is blank data
+events.pop(0)
+# Arrange events according date (substract 70 days from all dates)
+for i in range(len(events)):
+	try:
+		csvdate = datetime.datetime.strptime(events[i][0],"%Y-%m-%dT%H:%M:%S")
+	except:
+		csvdate = datetime.datetime.strptime(events[i][0],"%Y-%m-%d")
+	tempdate = csvdate - datetime.timedelta(days=70)
+	events[i][0] = tempdate.strftime('%d %b %Y')
 
-hour_time = time.time()
+# Printer 
+printer = ThermalPrinter(serialport='/dev/ttyAMA0')
 
 sizeX = 320
 sizeY = 240
@@ -77,17 +95,37 @@ def _create_circle_arc(self, x, y, r, **kwargs):
 Canvas.create_circle_arc = _create_circle_arc
 
 def click(event):
-	global b, update, running, printer
+	global b, update, running, printer, events, board
 	canvas.delete(b)
 	b = canvas.create_circle(sizeX/2, sizeY/2, 30, fill="red", outline="white", width=1)
 	tk.update()
 	#tk.after_cancel(update)
 	print "imprimiendo..."
-	time.sleep(2)
-	cadena = "Tiempo %d\n" % (time.time() - hour_time)
-	printer.print_text("\nHello Tania. Como estas?\n")
-	printer.print_text(cadena)
-	print "resuming %s" % (cadena)
+	time.sleep(0.5)
+	valor = random.randint(0,len(events)-1)
+	#valor = utils.mapping(board.attitude)
+	message = "\n%s\nOn %s\n%s\n\nMore info: %s\n\n" % (events[valor][1],events[valor][0],events[valor][2],events[valor][3])
+	print message
+	printer.justify("C")
+	printer.bold_on()
+	printer.print_text("TIME BOX\n__________\n")
+	printer.bold_off()
+	printer.print_text("According to:\n")
+	printer.bold_on()
+	printer.print_text(valor)
+	printer.print_text(" degrees")
+	printer.bold_off()
+	printer.print_text("\nof inclination...\n")
+	printer.bold_on()
+	printer.print_text(events[valor][1])
+	printer.bold_off()
+	printer.print_text("\n")
+	printer.print_text(events[valor][0])
+	printer.print_text("\n")
+	printer.print_text(events[valor][2])
+	printer.print_text("\nMore info:\n")
+	printer.print_text(events[valor][3])
+	printer.print_text("\n\n\n")
 	#update = boxAngle()
 	#t = canvas.create_text(sizeX/2, sizeY/2,text="Printing...", fill="white", font=("Helvetica", 20))
     #tk.quit()
