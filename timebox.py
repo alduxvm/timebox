@@ -14,7 +14,7 @@ __status__ = "Development"
 from Tkinter import *
 from modules.pyMultiwii import MultiWii	
 import modules.utils as utils
-import modules.printer
+from modules.printer import ThermalPrinter
 import time, csv, datetime, random
 
 debug = True
@@ -101,31 +101,34 @@ def click(event):
 	tk.update()
 	#tk.after_cancel(update)
 	print "imprimiendo..."
-	time.sleep(0.5)
+	#time.sleep(0.5)
 	valor = random.randint(0,len(events)-1)
 	#valor = utils.mapping(board.attitude)
 	message = "\n%s\nOn %s\n%s\n\nMore info: %s\n\n" % (events[valor][1],events[valor][0],events[valor][2],events[valor][3])
 	print message
 	printer.justify("C")
+	printer.inverse_on()
 	printer.bold_on()
-	printer.print_text("TIME BOX\n__________\n")
+	printer.print_text("TIME BOX")
+	printer.inverse_off()
+	printer.print_text("\n______________\n")
 	printer.bold_off()
 	printer.print_text("According to:\n")
 	printer.bold_on()
-	printer.print_text(valor)
+	printer.print_text(str(valor))
 	printer.print_text(" degrees")
 	printer.bold_off()
-	printer.print_text("\nof inclination...\n")
+	printer.print_text("\nof inclination\n______________\n\n")
 	printer.bold_on()
 	printer.print_text(events[valor][1])
 	printer.bold_off()
 	printer.print_text("\n")
 	printer.print_text(events[valor][0])
-	printer.print_text("\n")
+	printer.print_text("\n\n")
 	printer.print_text(events[valor][2])
-	printer.print_text("\nMore info:\n")
+	printer.print_text("\n\nMore info:\n")
 	printer.print_text(events[valor][3])
-	printer.print_text("\n\n\n")
+	printer.print_text("\n\n:)\n____________________________\n\n\n")
 	#update = boxAngle()
 	#t = canvas.create_text(sizeX/2, sizeY/2,text="Printing...", fill="white", font=("Helvetica", 20))
     #tk.quit()
