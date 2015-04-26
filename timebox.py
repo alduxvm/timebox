@@ -81,7 +81,7 @@ def boxAngle():
 	c = canvas.create_circle(sizeX/2, sizeY/2, circleradius, fill="black", outline=utils.rgb_to_hex((r, g, b)), width=10)
 	a = canvas.create_circle_arc(sizeX/2, sizeY/2, arcradius, style="arc", outline="white", width=3, start=arcStart, end=arcEnd)
 	b = canvas.create_circle(sizeX/2, sizeY/2, 30, fill="#11A7F4", outline="white", width=1)
-	t = canvas.create_text(sizeX/2, sizeY/2,text="Go", fill="white", font=("Helvetica", 36))
+	t = canvas.create_text(sizeX/2, sizeY/2,text="Go", fill="white", font=("Helvetica", 30))
 	canvas.tag_bind(b, "<ButtonPress-1>", click)
 	canvas.tag_bind(t, "<ButtonPress-1>", click)
 	tk.after(100, boxAngle)
@@ -145,14 +145,18 @@ def click(event):
 		print "Error while printing, perhaps no printer attached."
 	#update = boxAngle()
 	#t = canvas.create_text(sizeX/2, sizeY/2,text="Printing...", fill="white", font=("Helvetica", 20))
-    #tk.quit()
+ 
 
+def exitApp(event):
+	tk.quit()
 
 c = canvas.create_circle(sizeX/2, sizeY/2, circleradius, fill="black", outline="#DDD", width=10)
 #canvas.create_circle_arc(100, 120, 50, fill="black", style="arc", outline="#DDD", width=10, start=0, end=180)
 a = canvas.create_circle_arc(sizeX/2, sizeY/2, arcradius, style="arc", outline="white", width=5, start=0+15, end=0-15)
 b = canvas.create_circle(sizeX/2, sizeY/2, 40, fill="red")
-#canvas.tag_bind(b, "<ButtonPress-1>", click)
+
+exit = canvas.create_circle(0, 0, 50, fill="black")
+canvas.tag_bind(exit, "<ButtonPress-1>", exitApp)
 
 update = boxAngle()
 tk.mainloop()  
